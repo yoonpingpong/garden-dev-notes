@@ -1,5 +1,21 @@
 import { QuartzConfig } from "./quartz/cfg"
+import { QuartzFilterPlugin } from "./quartz/plugins/types"
 import * as Plugin from "./quartz/plugins"
+
+/**
+ * 검토한 노트만 사이트에 노출시키는 옵트인 필터.
+ * frontmatter에 `publish: true`가 명시된 노트만 통과시킨다.
+ * 기본값(없거나 false): 비공개.
+ */
+const ExplicitlyPublished: QuartzFilterPlugin<{}> = () => ({
+  name: "ExplicitlyPublished",
+  shouldPublish(_ctx, [_tree, vfile]) {
+    return (
+      vfile.data?.frontmatter?.publish === true ||
+      vfile.data?.frontmatter?.publish === "true"
+    )
+  },
+})
 
 /**
  * Quartz 4 Configuration
@@ -8,16 +24,16 @@ import * as Plugin from "./quartz/plugins"
  */
 const config: QuartzConfig = {
   configuration: {
-    pageTitle: "Quartz 4",
+    pageTitle: "🦔 고슴도치의 정원",
     pageTitleSuffix: "",
     enableSPA: true,
     enablePopovers: true,
     analytics: {
       provider: "plausible",
     },
-    locale: "en-US",
-    baseUrl: "quartz.jzhao.xyz",
-    ignorePatterns: ["private", "templates", ".obsidian"],
+    locale: "ko-KR",
+    baseUrl: "yoonpingpong.github.io/garden-dev-notes",
+    ignorePatterns: ["private", "_meta", "templates", ".obsidian", "daily", "inbox"],
     defaultDateType: "modified",
     theme: {
       fontOrigin: "googleFonts",
@@ -73,7 +89,7 @@ const config: QuartzConfig = {
       Plugin.Description(),
       Plugin.Latex({ renderEngine: "katex" }),
     ],
-    filters: [Plugin.RemoveDrafts()],
+    filters: [Plugin.RemoveDrafts(), ExplicitlyPublished()],
     emitters: [
       Plugin.AliasRedirects(),
       Plugin.ComponentResources(),
