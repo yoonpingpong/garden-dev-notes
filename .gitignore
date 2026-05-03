@@ -9,3 +9,23 @@ tsconfig.tsbuildinfo
 private/
 .replit
 replit.nix
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Obsidian — workspace state and cache (개인 설정은 유지)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian/graph.json
+
+# Trash
+.trash/
+
+# Local-only
+*.local.md
+private/
