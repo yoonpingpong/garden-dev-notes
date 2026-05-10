@@ -3,7 +3,7 @@ title: SQLAlchemy Session과 Identity Map — 영속성 컨텍스트와 객체 �
 type: concept
 tags: [sqlalchemy, orm, async, jpa-comparison]
 last_reviewed: 2026-05-10
-publish: false
+publish: true
 ---
 
 # SQLAlchemy Session과 Identity Map — 영속성 컨텍스트와 객체 동일성
