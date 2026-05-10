@@ -1,12 +1,12 @@
 ---
-title: SQLAlchemy Session과 Identity Map — 영속성 컨텍스트와 객체 동일성
+title: SQLAlchemy Session과 Identity Map
 type: concept
 tags: [sqlalchemy, orm, async, jpa-comparison]
 last_reviewed: 2026-05-10
 publish: true
 ---
 
-# SQLAlchemy Session과 Identity Map — 영속성 컨텍스트와 객체 동일성
+# SQLAlchemy Session과 Identity Map
 
 SQLAlchemy의 `Session` (`AsyncSession`)이 JPA의 `EntityManager` 역할을 그대로 수행한다. Identity Map은 JPA의 영속성 컨텍스트(1차 캐시)와 동일한 메커니즘으로, 같은 세션 안에서 동일한 row가 항상 같은 파이썬 객체로 매핑되도록 보장한다.
 
