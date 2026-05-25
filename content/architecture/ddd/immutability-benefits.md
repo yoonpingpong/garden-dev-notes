@@ -7,7 +7,7 @@ related:
   - "[[../../language/java/record]]"
   - "[[../../language/java/object-comparison]]"
 last_reviewed: 2026-05-25
-publish: false
+publish: true
 ---
 
 # VO 불변성이 가져오는 안전성

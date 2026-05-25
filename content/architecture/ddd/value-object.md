@@ -5,8 +5,8 @@ tags: [ddd, value-object, domain-modeling, immutability, java]
 related:
   - "[[../../language/java/record]]"
   - "[[../../language/java/object-comparison]]"
-last_reviewed: 2026-05-03
-publish: false
+last_reviewed: 2026-05-25
+publish: true
 ---
 
 # Value Object — 값으로 다루는 객체
