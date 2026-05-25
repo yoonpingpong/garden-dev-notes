@@ -4,6 +4,7 @@ type: concept
 tags: [ddd, value-object, domain-modeling, immutability, java]
 related:
   - "[[../../language/java/record]]"
+  - "[[../../language/java/object-comparison]]"
 last_reviewed: 2026-05-03
 publish: false
 ---
@@ -15,11 +16,17 @@ publish: false
 - [한 줄 정의](#한-줄-정의)
 - [Entity vs Value Object](#entity-vs-value-object)
 - [VO의 5가지 핵심 용도](#vo의-5가지-핵심-용도)
+  - [1. 타입으로 의미 강제](#1-타입으로-의미-강제-primitive-obsession-방지)
+  - [2. 검증을 한 곳에 모음](#2-검증을-한-곳에-모음-self-validating)
+  - [3. 도메인 행위의 자연스러운 위치](#3-도메인-행위의-자연스러운-위치)
+  - [4. 불변성으로 안전한 공유](#4-불변성으로-안전한-공유)
+  - [5. Set/Map의 키, 컬렉션 비교에 적합](#5-setmap의-키-컬렉션-비교에-적합)
 - [어떤 걸 VO로 만들까](#어떤-걸-vo로-만들까)
 - [VO vs DTO](#vo-vs-dto)
 - [흔히 하는 실수](#흔히-하는-실수)
 - [Java에서 VO 구현 — record가 사실상 표준](#java에서-vo-구현--record가-사실상-표준)
 - [핵심 정리](#핵심-정리)
+- [심화 예제 노트](#심화-예제-노트)
 
 ## 한 줄 정의
 
@@ -87,7 +94,8 @@ Money는 **값이 바뀌면 다른 객체**. "1000원"과 "2000원"은 그냥 �
 
 ### 1. 타입으로 의미 강제 (Primitive obsession 방지)
 
-> **Primitive obsession** — 도메인 개념을 String/UUID/Long 같은 범용 타입으로만 표현하는 안티패턴. 타입이 너무 넓어 컴파일러가 의미적 실수를 잡지 못한다.
+> **Primitive obsession** — 도메인 개념을 String/UUID/Long 같은 범용 타입으로만 표현하는 안티패턴. 
+> 타입이 너무 넓어 컴파일러가 의미적 실수를 잡지 못한다.
 
 같은 `Long` 타입이면 그게 출금 계좌 ID인지 입금 계좌 ID인지 컴파일러는 구분할 수 없다. 인자 순서 실수 같은 버그가 운영에 나가서야 발견된다.
 
@@ -144,151 +152,45 @@ class NotificationService {
 
 ### 3. 도메인 행위의 자연스러운 위치
 
-값과 관련된 로직을 그 값의 타입에 두면, 코드가 도메인 언어로 읽힌다.
-
-#### 시나리오 — 주문 합계 계산
-
-요구사항:
-- 주문(Order)에는 여러 상품(LineItem)이 들어있고, 각 상품마다 가격(price)이 있다.
-- 모든 상품 가격을 합한다.
-- 합계가 임계값(`THRESHOLD`)을 넘으면 할인율(`DISCOUNT_RATE`)을 곱해 할인된 금액을 돌려준다.
-
-#### ❌ 절차적 접근 — 가격을 그냥 BigDecimal로
-
-가격을 단순 `BigDecimal`로 들고 다니면, 합계 계산 로직이 서비스 레이어로 빠져나간다.
+값과 관련된 로직을 **그 값의 타입에 두면**, 코드가 도메인 언어로 읽힌다.
 
 ```java
-class LineItem {
-    BigDecimal price;          // 가격이 그냥 BigDecimal
-    // ...
-}
-
-class Order {
-    List<LineItem> items;
-    // 합계 계산 로직 없음 — 어디 있어야 할지 애매함
-}
-
-class OrderService {
-    // 가격 리스트를 받아서 합계+할인을 직접 계산
-    BigDecimal calculateTotal(List<BigDecimal> prices) {
-        BigDecimal sum = BigDecimal.ZERO;
-        for (BigDecimal p : prices) {
-            sum = sum.add(p);
-        }
-        if (sum.compareTo(THRESHOLD) > 0) {
-            sum = sum.multiply(DISCOUNT_RATE);
-        }
-        return sum;
-    }
-}
-
-// 사용처
-List<BigDecimal> prices = order.items.stream()
-    .map(item -> item.price)
-    .toList();
-BigDecimal total = orderService.calculateTotal(prices);
-```
-
-문제점:
-- "합계가 임계값을 넘으면 할인" 로직이 **`OrderService` 안의 BigDecimal 계산**으로 표현됨 → 도메인 의미가 산술 코드에 묻힘
-- `BigDecimal`엔 통화(KRW/USD) 정보가 없음 → 다른 통화를 섞어도 컴파일러가 못 잡음
-- 다른 서비스에서 합계가 또 필요하면? 같은 로직을 또 구현 (중복)
-
-#### ✅ VO 기반 접근 — Money 타입에 도메인 행위 응집
-
-가격을 `Money` VO로 격상하고, 도메인 행위(`add`, `multiply`, `isGreaterThan`)를 그 안에 둔다.
-
-```java
-// 1. 값과 행위를 같이 가진 VO
 public record Money(BigDecimal amount, Currency currency) {
-    public static final Money ZERO_KRW = new Money(BigDecimal.ZERO, KRW);
-
-    public Money add(Money other) {
-        // 통화가 다르면 더할 수 없음 (도메인 규칙도 VO가 강제)
-        if (!currency.equals(other.currency))
-            throw new IllegalArgumentException("currency mismatch");
-        return new Money(amount.add(other.amount), currency);
-    }
-
-    public Money multiply(BigDecimal factor) {
-        return new Money(amount.multiply(factor), currency);
-    }
-
-    public boolean isGreaterThan(Money other) {
-        return amount.compareTo(other.amount) > 0;
-    }
+    public Money add(Money other) { /* 통화 검증 + 합산 */ }
+    public Money multiply(BigDecimal factor) { ... }
+    public boolean isGreaterThan(Money other) { ... }
 }
 
-// 2. LineItem은 가격을 Money로 보유
-public record LineItem(ProductId productId, int quantity, Money price) { }
-
-// 3. Order는 자기 items에 대한 합계를 자기가 안다
-public class Order {
-    private final List<LineItem> items;   // ← 이 items가 Order의 필드
-    private final Money threshold;
-    private final BigDecimal discountRate;
-
-    public Money total() {
-        // items의 가격들을 Money.add로 합산
-        Money sum = items.stream()
-            .map(LineItem::price)                       // 각 LineItem의 price (Money)
-            .reduce(Money.ZERO_KRW, Money::add);        // Money끼리 합산
-
-        // 임계값 초과면 할인 적용
-        return sum.isGreaterThan(threshold)
-            ? sum.multiply(discountRate)
-            : sum;
-    }
-}
-
-// 사용처
-Money total = order.total();
+// 사용처는 비즈니스 언어처럼 읽힘
+Money sum = items.stream().map(LineItem::price)
+    .reduce(Money.ZERO_KRW, Money::add);
+return sum.isGreaterThan(threshold) ? sum.multiply(rate) : sum;
 ```
 
-#### 무엇이 좋아졌나
-
-| | 절차적 (`OrderService`) | VO 기반 (`Order` + `Money`) |
-|---|---|---|
-| 합산 로직 위치 | OrderService 안의 BigDecimal for-loop | `Money.add` (값의 타입에) |
-| 할인 로직 위치 | OrderService 안의 if + multiply | `Order.total()` (도메인 객체에) |
-| 통화 안전성 | 없음 (KRW/USD 섞여도 통과) | `Money.add`가 통화 검증 |
-| 재사용성 | OrderService 메서드 호출 필요 | `order.total()` 한 줄 |
-| 가독성 | 산술 연산 나열 | `sum.isGreaterThan(threshold)` ← 도메인 언어 |
-
-#### 도메인 언어로 읽힌다는 것
-
-VO 버전의 `Order.total()` 본문을 한국어로 읽으면:
-
-> "items의 가격들을 0원에서부터 더해서 합계를 만든다.
-> 합계가 임계값보다 크면 할인율을 곱한 값을, 아니면 합계 그대로 돌려준다."
-
-비즈니스 담당자가 요구사항 말할 때 쓰는 그대로의 문장. 반면 절차적 버전은 *"BigDecimal을 ZERO에서 시작해서 for로 add하고 compareTo가 0보다 크면 multiply한다"* — 이건 **개발자 언어**.
-
-**값의 타입(Money)에 행위(add/multiply/isGreaterThan)를 붙이면, 그 값을 다루는 코드가 자연스럽게 도메인 언어가 된다.** 이게 VO가 "도메인 행위의 자연스러운 위치"인 이유.
+값(Money) + 행위(add/multiply/isGreaterThan)를 한 타입에 응집하면, 그 값을 다루는 코드가 **"합계가 임계값보다 크면 할인율을 곱한다"** 같은 도메인 언어로 자연스럽게 읽힌다. 절차적 BigDecimal 풀어쓰기와의 비교, 통화 안전성, Order 클래스의 책임 분리는 → [[domain-behavior-in-vo|VO에 도메인 행위를 응집하기]] 참조.
 
 ### 4. 불변성으로 안전한 공유
 
-여러 곳에서 동시에 참조해도 절대 안 바뀜 → 락 없이 공유 가능, 캐싱 자유, 부수효과 추적 단순.
+객체를 여러 곳에서 참조할 때, **그 객체가 바뀔 수 있느냐 없느냐**가 코드의 복잡도를 좌우한다. 가변 객체는 "누가 언제 바꿨지?"라는 추적 지옥을 만들고, 불변 객체는 그 질문 자체를 없앤다.
 
 ```java
-// 가변이면 — 어디서 바꿨는지 추적 지옥
-class Address { String street; String city; }
-Address a = ...;
-service1.process(a);   // 안에서 a.street 바꿈?
-service2.process(a);   // a가 바뀐 채로 들어옴
-
-// 불변(VO)이면 — 누가 봐도 같은 값
-record Address(String street, String city) { }
-Address a = ...;
-service1.process(a);   // a는 절대 안 바뀜
-service2.process(a);   // 처음 그대로
+public record Address(String street, String city, String zip) { }
+// setter 자체가 없음 → 호출자가 넘긴 객체를 누구도 변경 불가
 ```
 
-스레드 안전성, 캐시 키 안전성, equals/hashCode 신뢰성 — 모든 게 불변에서 나온다.
+이 한 가지 성질에서 3가지 효과가 파생된다:
+
+| 효과 | 왜? |
+|---|---|
+| **스레드 안전** | 값이 안 바뀌므로 동시 읽기에 락 불필요 |
+| **캐시 키 안전** | hashCode가 평생 같으므로 HashMap에서 유실 없음 |
+| **equals/hashCode 일관** | 한 번 만들어진 값의 정체성이 평생 유지 |
+
+가변 클래스로 같은 객체를 두 서비스에 공유했을 때 발생하는 오염 시나리오와 위 3가지 효과의 풀 코드 예제는 → [[immutability-benefits|VO 불변성이 가져오는 안전성]] 참조.
 
 ### 5. Set/Map의 키, 컬렉션 비교에 적합
 
-값 동등성이 자동으로 보장되니 컬렉션 키로 안전.
+값 동등성(`.equals()` 가 내용 비교)이 자동으로 보장되니 컬렉션 키로 안전. 자세한 동등성 규칙·함정은 [[../../language/java/object-comparison]] 참조.
 
 ```java
 record DateRange(LocalDate start, LocalDate end) { }
@@ -448,6 +350,19 @@ record 이전에는 Lombok `@Value`로 흉내냈지만, record는 **언어 차�
 
 도메인을 코드의 시민으로 끌어올리면, 코드가 비즈니스 언어로 말하기 시작한다.
 
+## 심화 예제 노트
+
+본문 5가지 용도 중 두 가지는 풀 시나리오가 별도 노트로 분리돼 있다. 개관만 빠르게 보려면 위 본문으로, 코드와 인과를 단계별로 따라가려면 아래 두 노트로.
+
+- [[domain-behavior-in-vo|VO에 도메인 행위를 응집하기]]
+  - 본문 *3번 항목*의 풀 시나리오
+  - 가격을 `BigDecimal` 대신 `Money`로 격상하면 합계/할인/통화 검증 로직이 어떻게 도메인 객체에 응집되는지
+
+- [[immutability-benefits|VO 불변성이 가져오는 안전성]]
+  - 본문 *4번 항목*의 풀 시나리오
+  - 같은 Address를 두 서비스에 공유했을 때 가변 vs 불변의 차이, 그리고 스레드 안전·캐시 키 안전·hashCode 일관성의 3가지 보너스
+
 ### 관련 노트
 
 - [[../../language/java/record]] — Java에서 VO를 만드는 사실상의 표준 도구
+- [[../../language/java/object-comparison]] — equals/hashCode/compareTo와 가변 객체의 함정

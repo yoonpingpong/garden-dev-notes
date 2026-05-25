@@ -3,8 +3,10 @@ title: Java Record — 불변 값 객체를 한 줄로
 type: concept
 tags: [java, record, immutability, value-object, ddd]
 related:
-  - "[[sealed-interface]]"
+  - "[[object-comparison]]"
   - "[[../../architecture/ddd/value-object]]"
+  - "[[../../architecture/ddd/domain-behavior-in-vo]]"
+  - "[[../../architecture/ddd/immutability-benefits]]"
 last_reviewed: 2026-05-03
 publish: true
 ---
@@ -497,39 +499,31 @@ public record Tags(List<String> values) {
 
 `List.copyOf`는 입력 내용을 복사한 **새 불변 리스트**를 반환. 원본을 수정해도 record는 영향 없음.
 
-### `==` 와 `.equals()` 구분
-
-방어적 복사를 해도 `equals`는 정상 동작한다는 점이 중요.
+### 방어적 복사 후에도 equals는 정상 동작
 
 ```java
 Tags t1 = new Tags(list);
 Tags t2 = new Tags(list);
 
-t1.values() == t2.values();         // false (다른 인스턴스)
-t1.values().equals(t2.values());    // true  (내용 같음)
-t1.equals(t2);                      // true  (record equals = 내용 비교)
+t1.values() == t2.values();    // false (다른 List 인스턴스, copyOf 결과)
+t1.equals(t2);                 // true  (record equals = 내용 비교)
 ```
 
-| 비교 | 의미 |
-|---|---|
-| `==` | 같은 객체 인스턴스인가? (참조 동등성) |
-| `.equals()` | 내용이 같은가? (값 동등성) |
+record의 자동 `equals`는 내부적으로 `List.equals`를 호출하고, `List.equals`는 내용 비교다 → 다른 인스턴스여도 같은 원소면 true. **방어적 복사가 equals 신뢰성을 깨지 않는다.**
 
-`List.equals`, `String.equals`, record의 자동 `equals` 모두 **값 동등성**. 다른 인스턴스여도 내용 같으면 true.
+> `==` (참조 동등성) vs `.equals()` (값 동등성) 의 일반 규칙, `List.equals` / `String.equals` 동작, BigDecimal 같은 표준 타입의 함정은 [[object-comparison]] 참조.
 
-### 배열 컴포넌트 주의
+### 배열 컴포넌트는 피하기
 
-배열의 `.equals()`는 참조 비교(`==`와 동치)라 record equals가 의도대로 작동하지 않는다.
+배열의 `.equals()`는 참조 비교라 record 자동 equals가 의도대로 작동하지 않는다.
 
 ```java
 public record BadTags(String[] values) { }
-
-BadTags a = new BadTags(new String[]{"x", "y"});
-BadTags b = new BadTags(new String[]{"x", "y"});
-a.equals(b);   // ❌ false — 배열 equals는 참조 비교
+new BadTags(new String[]{"x"}).equals(new BadTags(new String[]{"x"}));
+// false — 배열 equals는 참조 비교
 ```
 
-→ record 컴포넌트로는 **배열보다 List** 권장.
+→ record 컴포넌트로는 **배열보다 List** 권장. 배열 비교의 일반적 함정과 `Arrays.equals` 회피책은 [[object-comparison#함정-3--배열의-equals는-참조-비교|object-comparison: 함정 3]] 참조.
 
 ## Lombok과의 비교
 

@@ -3,7 +3,6 @@ title: Pydantic v2 Field Validators
 type: pattern
 tags: [pydantic, validation, python]
 related:
-  - "[[v1-vs-v2]]"
   - "[[language/python/typing/annotated]]"
 last_reviewed: 2026-05-02
 publish: false
@@ -239,8 +238,6 @@ class Article(BaseModel):
 | 항상 실행 | `always=True` 옵션 | 기본 동작 |
 | 재사용 | `allow_reuse=True` | `Annotated`로 자연스럽게 |
 | `wrap` 모드 | 없음 | 신규 |
-
-자세한 v1/v2 차이는 [[v1-vs-v2]] 참조.
 
 ## 사고 모델
 
