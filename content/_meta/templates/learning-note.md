@@ -9,7 +9,8 @@ publish: false
 ---
 
 <!--
-🧭 이 템플릿은 [[note-writing-patterns]]의 15가지 패턴을 따른다.
+🧭 이 템플릿은 [[note-writing-patterns]]의 작성 패턴을 따른다.
+   아래는 요약이고 정본은 note-writing-patterns.md다.
    새 학습 노트를 시작할 때 이 파일을 cp 한 뒤 채워 넣으면 된다.
 
    ▸ 파일명은 예제가 아니라 "주제" 중심 (kebab-case)

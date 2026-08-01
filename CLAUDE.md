@@ -10,13 +10,13 @@
 |------|------|----------|
 | **이 파일 (`CLAUDE.md`)** | 보안 규칙 (시크릿/내부정보 차단), 공개 게이트(`publish: true` 옵트인), 빌드 제외 폴더 | 🔒 필수 — 위반 절대 금지 |
 | **`content/_meta/conventions.md`** | 작성 흐름(daily → category → publish), 파일명·frontmatter·목차·백링크 등 스타일 컨벤션, 문서 타입, 사용 도구, ADR 인덱스 | 📐 권장 — 일관성 유지 |
-| **`content/_meta/note-writing-patterns.md`** | 학습 노트의 **내부 구조와 정제 흐름** — 분리 기준(응집도), 헤딩 계층(시나리오 부모-자식), ❌/✅ 대칭, 코드 예제 디자인, 양방향 백링크, 주어 명시, 예시 배치 등 15가지 작성 패턴과 사례 | 📝 학습 노트 작성·개선 시 |
+| **`content/_meta/note-writing-patterns.md`** | 학습 노트의 **내부 구조와 정제 흐름** — 분리 기준(응집도), 헤딩 계층(시나리오 부모-자식), ❌/✅ 대칭, 코드 예제 디자인, 양방향 백링크, 주어 명시, 예시 배치 등 작성 패턴과 사례 | 📝 학습 노트 작성·개선 시 |
 
 새 노트를 만들거나 기존 노트를 손볼 때는 위 문서들의 규칙을 먼저 확인 후 진행한다.
 
 ### 학습 노트를 쓰거나 손볼 때
 
-`content/architecture/`, `content/concepts/`, `content/language/`, `content/framework/` 등에 **학습 노트**를 작성·개선할 때는 `content/_meta/note-writing-patterns.md`의 15가지 패턴을 따른다. 특히:
+`content/architecture/`, `content/concepts/`, `content/language/`, `content/framework/` 등에 **학습 노트**를 작성·개선할 때는 `content/_meta/note-writing-patterns.md`의 작성 패턴을 따른다. 아래는 **요약**이며 정본은 그 문서다. 특히:
 
 - 분리 기준은 줄 수가 아니라 **응집도** (각 단락이 한 편의 글이 되는가)
 - 파일명은 예제가 아니라 **주제** 중심 (kebab-case, `money-as-vo.md` X, `domain-behavior-in-vo.md` O)
@@ -35,13 +35,16 @@
 
 **이 repo는 public이고, `content/` 안의 노트는 GitHub Pages를 통해 인터넷 전체에 공개됩니다.**
 
-다음 정보는 어떤 노트에도 **절대 포함하지 마세요**:
+### 공개 전 확인 목록
 
-- 비밀번호, API 키, 토큰, 시크릿 (AWS keys, GitHub tokens, OAuth secrets 등)
-- DB 접속 정보 (host, port, user, password, connection string, JDBC URL)
-- 내부 인프라 정보 (사설 IP, 내부 도메인, 호스트명, VPN 주소)
-- 회사 비공개 정보 (미공개 코드, 내부 정책, 제품 로드맵, 매출 등)
-- 개인정보 (이메일 주소, 전화번호, 주민번호, 실명 매핑 등)
+이 목록이 **유일한 정본**입니다. 다른 문서는 여기를 링크만 하고 항목을 복제하지 않습니다. `publish: true`를 켜기 전 여섯 항목을 모두 확인하세요.
+
+- [ ] 비밀번호, API 키, 토큰, 시크릿 없음 (AWS keys, GitHub tokens, OAuth secrets 등)
+- [ ] DB 접속 정보 없음 (host, port, user, password, connection string, JDBC URL)
+- [ ] 내부 인프라 정보 없음 (사설 IP, 내부 도메인, 호스트명, VPN 주소)
+- [ ] 회사 비공개 정보 없음 (미공개 코드, 내부 정책, 제품 로드맵, 매출 등)
+- [ ] 개인정보 없음 (이메일 주소, 전화번호, 주민번호, 실명 매핑 등)
+- [ ] 코드 예시는 placeholder 사용 (아래 참조)
 
 ### 예시 코드 작성 시 항상 placeholder 사용
 
@@ -85,11 +88,7 @@ export AWS_ACCESS_KEY_ID=<YOUR_AWS_ACCESS_KEY_ID>
 
 `quartz.config.ts`의 `ExplicitlyPublished` 커스텀 필터가 검사합니다.
 
-### 새 노트 작성 시 워크플로우
-
-1. 노트 작성 — `publish` 필드 없거나 `false` (기본 비공개)
-2. 본인이 보안/내용 검토 완료
-3. frontmatter에 `publish: true` 추가 → 사이트에 노출
+노트를 쓰기 시작해서 공개하기까지의 전체 절차는 `content/_meta/conventions.md`의 [작성 흐름](content/_meta/conventions.md#작성-흐름)이 정본입니다.
 
 ### 공개용 frontmatter 예시
 
@@ -114,14 +113,7 @@ publish: false       # 생략해도 같음
 ---
 ```
 
-### 검토 체크리스트 (publish: true 추가 전)
-
-- [ ] 비밀번호/토큰/API 키 없음
-- [ ] DB 접속 정보 없음
-- [ ] 내부 IP/도메인/호스트명 없음
-- [ ] 회사 비공개 정보 없음
-- [ ] 개인정보 없음
-- [ ] 코드 예시는 placeholder 사용
+`publish: true`를 켜기 전 위의 [공개 전 확인 목록](#공개-전-확인-목록) 여섯 항목을 확인한다.
 
 ## 구조
 
