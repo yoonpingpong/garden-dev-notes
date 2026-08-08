@@ -4,8 +4,8 @@ type: concept
 tags: [aws, vpc, networking]
 related:
   - "[[vpc-route-table]]"
-last_reviewed: 2026-08-02
-publish: false
+last_reviewed: 2026-08-09
+publish: true
 ---
 
 # VPC
