@@ -2,7 +2,8 @@
 title: "@Transactional과 프록시 경계"
 type: concept
 tags: [spring, transaction, aop, proxy, self-invocation, jpa]
-related: []
+related:
+  - "[[persistence-state-and-flush]]"
 last_reviewed: 2026-08-17
 publish: true
 ---
@@ -92,7 +93,7 @@ public class MemberService {
 
 renameAll이 실행되는 시점에는 이미 프록시를 통과해 진짜 객체 안에 들어와 있다. 거기서 부르는 rename은 진짜 객체가 자기 메서드를 부르는 평범한 자바 호출이다. 프록시는 이 호출을 볼 방법이 없다.
 
-트랜잭션이 없으므로 findById가 반환하는 순간 영속성 컨텍스트가 닫히고 엔티티는 준영속이 된다. 그 뒤의 changeName은 아무도 추적하지 않는 객체의 필드를 바꾼 것이다.
+트랜잭션이 없으므로 findById가 반환하는 순간 영속성 컨텍스트가 닫히고 엔티티는 준영속이 된다. 그 뒤의 changeName은 아무도 추적하지 않는 객체의 필드를 바꾼 것이다. 준영속이 무엇이고 왜 변경이 무시되는지는 [[persistence-state-and-flush]]에서 다룬다.
 
 ### ✅ 다른 빈으로 분리
 
