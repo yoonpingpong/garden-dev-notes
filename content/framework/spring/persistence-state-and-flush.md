@@ -4,6 +4,7 @@ type: concept
 tags: [spring, jpa, hibernate, transaction, persistence-context, dirty-checking]
 related:
   - "[[transaction-proxy-boundary]]"
+  - "[[pageable]]"
 last_reviewed: 2026-08-17
 publish: true
 ---
