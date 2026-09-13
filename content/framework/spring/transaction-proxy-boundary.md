@@ -4,6 +4,7 @@ type: concept
 tags: [spring, transaction, aop, proxy, self-invocation, jpa]
 related:
   - "[[persistence-state-and-flush]]"
+  - "[[bean-registration-paths]]"
 last_reviewed: 2026-08-17
 publish: true
 ---
