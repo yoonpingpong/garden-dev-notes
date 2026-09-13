@@ -6,7 +6,7 @@ related:
   - "[[bean-registration-paths]]"
   - "[[persistence-state-and-flush]]"
 last_reviewed: 2026-09-13
-publish: false
+publish: true
 ---
 
 # @EnableJpaAuditing을 별도 설정 클래스에 두는 이유

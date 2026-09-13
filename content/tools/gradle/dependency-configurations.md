@@ -7,7 +7,7 @@ related:
   - "[[plugins-vs-dependencies]]"
   - "[[bom-version-management]]"
 last_reviewed: 2026-09-13
-publish: false
+publish: true
 ---
 
 # 의존성 configuration 구분

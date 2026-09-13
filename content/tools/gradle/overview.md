@@ -6,8 +6,8 @@ related:
   - "[[plugins-vs-dependencies]]"
   - "[[bom-version-management]]"
   - "[[dependency-configurations]]"
-last_reviewed: 2026-08-02
-publish: false
+last_reviewed: 2026-09-13
+publish: true
 ---
 
 # Gradle 개요

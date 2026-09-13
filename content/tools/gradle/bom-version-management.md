@@ -7,7 +7,7 @@ related:
   - "[[plugins-vs-dependencies]]"
   - "[[dependency-configurations]]"
 last_reviewed: 2026-09-13
-publish: false
+publish: true
 ---
 
 # BOM으로 의존성 버전 관리하기

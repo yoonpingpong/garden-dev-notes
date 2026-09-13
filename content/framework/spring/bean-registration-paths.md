@@ -6,7 +6,7 @@ related:
   - "[[enable-annotation-placement]]"
   - "[[transaction-proxy-boundary]]"
 last_reviewed: 2026-09-13
-publish: false
+publish: true
 ---
 
 # 빈을 등록하는 두 경로

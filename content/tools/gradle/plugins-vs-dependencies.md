@@ -7,7 +7,7 @@ related:
   - "[[bom-version-management]]"
   - "[[dependency-configurations]]"
 last_reviewed: 2026-09-13
-publish: false
+publish: true
 ---
 
 # plugins와 dependencies의 차이
